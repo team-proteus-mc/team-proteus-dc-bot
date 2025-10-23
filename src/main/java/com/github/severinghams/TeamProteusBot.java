@@ -40,6 +40,6 @@ public class TeamProteusBot {
 			GUILD_MESSAGE_REACTIONS,
 			MESSAGE_CONTENT
 		)
-		.addEventListeners(args);
+		.addEventListeners(new BotListeners(config));
 	}
 }

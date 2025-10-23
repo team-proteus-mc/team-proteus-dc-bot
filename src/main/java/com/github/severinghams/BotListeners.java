@@ -3,7 +3,14 @@ package com.github.severinghams;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class BotListeners  extends ListenerAdapter {
+public class BotListeners extends ListenerAdapter {
+	
+	public BotConfig config;
+	
+	public BotListeners(BotConfig config) {
+		this.config = config;
+	}
+	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		System.out.printf("[%s] %#s: %s\n",
