@@ -6,26 +6,35 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import static com.github.severinghams.ConfigItem.Type.*;
 
 public class BotConfig {
 	
 	private HashMap<String, String> config;
 	private static File cfg;
+	private static final HashMap<String, ConfigItem.Type> mapcfg = new HashMap<String, ConfigItem.Type>();
+	
 	private static final ArrayList<String> defaultConfig = new ArrayList<String>(Arrays.asList(
 		new String[]
 		{
 			"token", 
 			"verify-button-channel-id", 
+			"verify-button-message-id",
 			"ticket-category-id", 
 			"verify-role-id", 
 			"mod-role-id"
 		}
 	));
+	
+	static {
+		ConfigItem.Type[] t = {STR, LNG, LNG, LNG, LNG};
+		for (int i = 0; i < defaultConfig.size(); i++) {
+			mapcfg.put(defaultConfig.get(i), t[i]);
+		}
+	}
 
 	
 	public BotConfig(File file) throws IOException, BotConfigException {
