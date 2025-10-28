@@ -51,8 +51,6 @@ public class TeamProteusBot {
 	public Role adminRole;
 	public Role ownerRole;
 	
-	private ArrayList<User> userQueue = new ArrayList<User>();
-	
 	public TeamProteusBot() {
 		
 	}
@@ -99,7 +97,7 @@ public class TeamProteusBot {
 		);
 		commands.queue();
 		
-		this.listeners = new BotListeners(this, this.config);
+		this.listeners = new BotListeners(this);
 		this.discord.awaitReady();
 		if (this.config.getConfig("guild-id").getLong() == 0) {
 			this.config.setGuildId(new ConfigItem((this.discord.getGuilds().get(0).getIdLong()+""), ConfigItem.Type.LNG));

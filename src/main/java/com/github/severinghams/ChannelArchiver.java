@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.List;
 
 import net.dv8tion.jda.api.entities.Message;
 
@@ -20,7 +20,7 @@ public class ChannelArchiver {
 		}
 	}
 	
-	public void archiveChannel(ArrayList<Message> mh, String name) {
+	public void archiveChannel(List<Message> mh, String name) {
 		File file = new File(new File(dir,name), ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdir();
