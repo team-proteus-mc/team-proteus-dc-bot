@@ -10,10 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import com.github.severinghams.ConfigItem.Type;
-
-import static com.github.severinghams.ConfigItem.Type.*;
-
 public class BotConfig {
 	
 	private HashMap<String, ConfigItem> config;
@@ -22,6 +18,7 @@ public class BotConfig {
 		new String[]
 		{
 			"token", 
+			"guild-id",
 			"rules-channel-id", 
 			"rules-message-id",
 			"ticket-category-id", 
@@ -50,8 +47,16 @@ public class BotConfig {
 	}
 	
 	public void setMessageId(ConfigItem c) {
-		this.config.remove("rules-message-id");
-		this.config.put("rules-message-id", c);
+		this.config.replace("rules-message-id", c);
+		try {
+			saveConfig(cfg, this.config);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setGuildId(ConfigItem c) {
+		this.config.replace("guild-id", c);
 		try {
 			saveConfig(cfg, this.config);
 		} catch (IOException e) {
@@ -69,22 +74,33 @@ public class BotConfig {
 				"",
 				"# Discord Token",
 				"token:String>>",
+				"",
+				"# Discord Guild ID. Leave as 0, as this will auto populate.",
+				"guild-id:long>>0",
+				"",
 				"# Channel to place the verification message in.",
 				"rules-channel-id:long>>",
+				"",
 				"# The message ID of the 'react to verify' message. ",
 				"# LEAVE THIS value as 0 if you don't already have a message to use",
 				"# for this.",
 				"rules-message-id:long>>0",
+				"",
 				"# Category ID to place all user's ticket channels under.",
 				"ticket-category-id:long>>",
+				"",
 				"# Role to give users to let mods know they aren't verified",
 				"verify-role-id:long>>",
+				"",
 				"# Verified member role",
 				"member-role-id:long>>",
+				"",
 				"# Moderator role",
 				"mod-role-id:long>>",
+				"",
 				"# Admin role",
 				"admin-role-id:long>>",
+				"",
 				"# Owner role",
 				"owner-role-id:long>>"
 			};
@@ -124,22 +140,33 @@ public class BotConfig {
 			pw.println("");
 			pw.println("# Discord Token");
 			pw.println("token:String>>"+hm.get("token").getString());
+			pw.println("");
+			pw.println("# Discord Guild ID. Leave as 0, as this will auto populate.");
+			pw.println("guild-id:long>>"+hm.get("guild-id").getString());
+			pw.println("");
 			pw.println("# Channel to place the verification message in.");
 			pw.println("rules-channel-id:long>>"+hm.get("rules-channel-id").getString());
+			pw.println("");
 			pw.println("# The message ID of the 'react to verify' message. ");
 			pw.println("# LEAVE THIS value as 0 if you don't already have a message to use");
 			pw.println("# for this.");
 			pw.println("rules-message-id:long>>"+hm.get("rules-message-id").getString());
+			pw.println("");
 			pw.println("# Category ID to place all user's ticket channels under.");
 			pw.println("ticket-category-id:long>>"+hm.get("ticket-category-id").getString());
+			pw.println("");
 			pw.println("# Role to give users to let mods know they aren't verified");
 			pw.println("verify-role-id:long>>"+hm.get("verify-role-id").getString());
+			pw.println("");
 			pw.println("# Verified member role");
 			pw.println("member-role-id:long>>"+hm.get("member-role-id").getString());
+			pw.println("");
 			pw.println("# Moderator role");
 			pw.println("mod-role-id:long>>"+hm.get("mod-role-id").getString());
+			pw.println("");
 			pw.println("# Admin role");
 			pw.println("admin-role-id:long>>"+hm.get("admin-role-id").getString());
+			pw.println("");
 			pw.println("# Owner role");
 			pw.println("owner-role-id:long>>"+hm.get("owner-role-id").getString());
 			/*

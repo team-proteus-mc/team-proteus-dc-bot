@@ -1,18 +1,21 @@
 package com.github.severinghams;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEmojiEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-//import net.dv8tion.jda.api.hooks.Nonnull;
 
 public class BotListeners extends ListenerAdapter {
 	
@@ -20,38 +23,37 @@ public class BotListeners extends ListenerAdapter {
 	
 	private TeamProteusBot bot;
 	
-	//private TextChannel rulesChannel;
-	
-	//private Category ticketCategory;
-	
-	//private Message reactMessage;
-	
 	public BotListeners(TeamProteusBot bot, BotConfig config) {
 		this.config = config;
 		this.bot = bot;
-		//this.rulesChannel = this.bot.discord.getTextChannelById(this.config.getConfig("rules-channel-id").getLong());
-		//this.ticketCategory = this.bot.discord.getCategoryById(this.config.getConfig("ticket-category-id").getLong());
-		//this.reactMessage = this.rulesChannel.getHistory().getMessageById(this.config.getConfig("rules-message-id").getLong());
 	}
-	/*
-	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
-		if (!event.isFromGuild()) return;
-		if (this.bot.ticketCategory.getChannels().contains(event.getGuildChannel())) {
-			System.out.printf("[%s] %#s: %s\n",
-			event.getChannel().getName(),
-			event.getAuthor(),
-			event.getMessage().getContentDisplay());
+	
+	@Override 
+	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+		if (!event.getName().equals("verify")) return;
+		if (!event.isFromGuild() || !event.getChannelType().isMessage()) { event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
+		if (!this.bot.usermap.containsChannel(event.getChannelIdLong())) { event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
+		if (this.bot.ticketCategory.getChannels().contains(this.bot.discord.getGuildChannelById(event.getChannelIdLong()))) {
+			ArrayList<Message> mh = new ArrayList<Message>(this.bot.discord.getTextChannelById(event.getChannelIdLong()).getHistory().getRetrievedHistory());
+			long userid = this.bot.usermap.getUserFromChannel(event.getChannelIdLong());
+			this.bot.archiver.archiveChannel(mh, this.bot.discord.getUserById(userid).getName());
+			this.bot.guild.retrieveMemberById(userid).queue(
+				(user) -> {
+					this.bot.guild.addRoleToMember(user, this.bot.memberRole).queue();
+					this.bot.guild.removeRoleFromMember(user, this.bot.verifyRole).queue();
+					this.bot.guild.getTextChannelById(event.getChannelIdLong()).upsertPermissionOverride(user).setDenied(Permission.MESSAGE_SEND,Permission.MESSAGE_HISTORY,Permission.VIEW_CHANNEL).queue();
+				}
+			);
+			event.reply("User verified! Channel deleting in 1 minute.").queue();
+			this.bot.usermap.removeChannelMap(event.getChannelIdLong());
+			this.bot.guild.getTextChannelById(event.getChannelIdLong()).delete().queueAfter(60, TimeUnit.SECONDS);
+		} else {
+			event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue();
 		}
 	}
-	*/
+
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
-		System.out.printf("[%s] %s: %s\n",
-		event.getChannel().getName(),
-		event.getUser().getName(),
-		event.getMessageIdLong());
-		
 		if (event.getMessageIdLong() != this.bot.reactMessageId) {
 			return;//this.bot.reactMessage.addReaction(bot.reactEmoji).queue();
 		}
@@ -59,44 +61,37 @@ public class BotListeners extends ListenerAdapter {
 			return;
 		}
 		event.getReaction().removeReaction(event.getUser()).queue();
+		if (this.bot.ignoreReqCache.doIgnore(event.getUserIdLong())) {
+			return;
+		}
 		if (!event.getEmoji().getAsReactionCode().equals(this.bot.reactEmoji.getAsReactionCode())) {
 			return;
 		}
 		event.retrieveMember().queue(
 			(user) -> {
-				if (user.getRoles().contains(this.bot.memberRole)) {
-					return;
-				}
-				this.bot.handleVerify(user);
+				this.bot.handleVerification(user);
 			}
 		);
 	}
 	
 	@Override
 	public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-		System.out.println(event.getMember().getNickname());
-		System.out.println(event.getUser().getEffectiveName());
-		this.onRemoveReaction(event.getUser(), this.bot.discord.getSelfUser());
-	}
-	
-	private void onRemoveReaction(User user, User self) {
-		if (user.getIdLong() == self.getIdLong()) {
-			System.out.println("test2");
-			this.bot.rulesChannel.addReactionById(this.config.getConfig("rules-message-id").getLong(), Emoji.fromUnicode("✅")).queue();
+		if (event.getMessageIdLong() != this.bot.reactMessageId && event.getUser().getIdLong() == this.bot.discord.getSelfUser().getIdLong()) {
+			this.bot.reactMessage.addReaction(this.bot.reactEmoji).queue();
 		}
 	}
 	
 	@Override
     public void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
 		if (event.getMessageIdLong() == this.bot.reactMessageId) {
-			this.bot.reactMessage.addReaction(bot.reactEmoji).queue();
+			this.bot.reactMessage.addReaction(this.bot.reactEmoji).queue();
 		}
 	}
 	
 	@Override
     public void onMessageReactionRemoveEmoji(MessageReactionRemoveEmojiEvent event) {
 		if (event.getMessageIdLong() == this.bot.reactMessageId && event.getEmoji().getAsReactionCode().equals(this.bot.reactEmoji.getAsReactionCode())) {
-			this.bot.reactMessage.addReaction(bot.reactEmoji).queue();
+			this.bot.reactMessage.addReaction(this.bot.reactEmoji).queue();
 		}
 	}
 }
