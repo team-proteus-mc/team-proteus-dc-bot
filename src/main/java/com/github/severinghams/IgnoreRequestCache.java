@@ -8,7 +8,7 @@ public class IgnoreRequestCache {
 	
 	public void ignoreUser(long l) {
 		if (!users.contains(l)) {
-			//users.add(l);
+			users.add(l);
 		}
 	}
 	

@@ -86,6 +86,7 @@ public class TeamProteusBot {
 		)
 		.setActivity(Activity.customStatus("sigma very sigma"))
 		.build();
+	
 
 		CommandListUpdateAction commands = discord.updateCommands();
 		
@@ -170,6 +171,12 @@ public class TeamProteusBot {
 		} else { // IFMESSAGEID0 -> else, if the id in config is not the id of the latest message, create a new message
 			this.createReactMessage();
 		}
+		
+		this.guild.retrieveMemberById(1432403822877216802L).queue(
+			(member) -> {
+				this.handleVerification(member);
+			}
+		);
 	}
 	
 	private void createReactMessage() {
