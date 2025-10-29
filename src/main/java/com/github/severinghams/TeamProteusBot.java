@@ -11,12 +11,12 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
@@ -93,6 +93,20 @@ public class TeamProteusBot {
 		commands.addCommands(
 			Commands
 				.slash("verify", "Verify the user in the current channel.")
+				.setContexts(InteractionContextType.GUILD)
+				.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
+			Commands
+				.slash("deny", "Deny verification for the user in the current channel.")
+				.setContexts(InteractionContextType.GUILD)
+				.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
+			Commands
+				.slash("denykick", "Deny verification and kick the user in the current channel.")
+				.addOption(OptionType.STRING, "reason", "Provided reason for kick")
+				.setContexts(InteractionContextType.GUILD)
+				.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
+			Commands
+				.slash("denyban", "Deny verification and ban the user in the current channel.")
+				.addOption(OptionType.STRING, "reason", "Provided reason for ban")
 				.setContexts(InteractionContextType.GUILD)
 				.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
 		);

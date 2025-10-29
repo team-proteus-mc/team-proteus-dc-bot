@@ -12,6 +12,12 @@ public class IgnoreRequestCache {
 		}
 	}
 	
+	public void unIgnoreUser(long l) {
+		if (users.contains(l)) {
+			users.remove(l);
+		}
+	}
+	
 	public boolean doIgnore(long l) {
 		return users.contains(l);
 	}

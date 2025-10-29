@@ -24,26 +24,46 @@ public class BotListeners extends ListenerAdapter {
 	
 	@Override 
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-		if (!event.getName().equals("verify")) return;
-		if (!event.isFromGuild() || !event.getChannelType().isMessage()) { event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
-		if (!this.bot.usermap.containsChannel(event.getChannelIdLong())) { event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
+		if (!event.isFromGuild() || !event.getChannelType().isMessage()) { event.reply("Cannot do that here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
+		if (!this.bot.usermap.containsChannel(event.getChannelIdLong())) { event.reply("Cannot do that here! This is not a ticket channel.").setEphemeral(true).queue(); return; }
 		if (this.bot.ticketCategory.getChannels().contains(this.bot.discord.getGuildChannelById(event.getChannelIdLong()))) {
 			MessageHistory mh = MessageHistory.getHistoryFromBeginning(this.bot.guild.getTextChannelById(event.getChannelIdLong())).complete();
 			List<Message> lm = mh.getRetrievedHistory();
 			long userid = this.bot.usermap.getUserFromChannel(event.getChannelIdLong());
 			this.bot.archiver.archiveChannel(lm, this.bot.discord.getUserById(userid).getName());
 			Member user = this.bot.guild.retrieveMemberById(userid).complete();
-			this.bot.guild.addRoleToMember(user, this.bot.memberRole).queue();
 			this.bot.guild.removeRoleFromMember(user, this.bot.verifyRole).queue();
 			this.bot.guild.getTextChannelById(event.getChannelIdLong()).upsertPermissionOverride(user).setDenied(Permission.MESSAGE_SEND,Permission.MESSAGE_HISTORY,Permission.VIEW_CHANNEL).queue();
-			event.reply("User verified! \r\n-# Channel deleting in 5 minutes.").queue();
+			switch (event.getName()) {
+				case "verify": 
+					this.bot.guild.addRoleToMember(user, this.bot.verifyRole).queue();
+					event.reply("User verified! \r\n-# Channel deleting in 5 minutes.").queue();
+					break;
+				case "deny": 
+					this.bot.ignoreReqCache.unIgnoreUser(userid);
+					event.reply("User denied! \r\n-# Channel deleting in 5 minutes.").queue();
+					break;
+				case "denykick":
+					this.bot.ignoreReqCache.unIgnoreUser(userid);
+					user.kick().reason(event.getOption("reason").getAsString()).complete();
+					event.reply("User denied and kicked! \r\n-# Channel deleting in 5 minutes.").queue();
+					break;
+				case "denyban": 
+					this.bot.ignoreReqCache.unIgnoreUser(userid);
+					user.ban(0, TimeUnit.SECONDS).reason(event.getOption("reason").getAsString()).complete();
+					event.reply("User denied and banned! \r\n-# Channel deleting in 5 minutes.").queue();
+					break;
+			}
 			this.bot.usermap.removeChannelMap(event.getChannelIdLong());
 			this.bot.guild.getTextChannelById(event.getChannelIdLong()).delete().queueAfter(5, TimeUnit.MINUTES);
 		} else {
-			event.reply("Cannot verify here! This is not a ticket channel.").setEphemeral(true).queue();
+			event.reply("Cannot do that here! This is not a ticket channel.").setEphemeral(true).queue();
 		}
 	}
-
+	
+	
+	
+/**/
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 		if (event.getMessageIdLong() != this.bot.reactMessageId) {
@@ -86,4 +106,6 @@ public class BotListeners extends ListenerAdapter {
 			this.bot.reactMessage.addReaction(this.bot.reactEmoji).queue();
 		}
 	}
+	/* 
+	*/
 }
