@@ -36,7 +36,7 @@ public class BotListeners extends ListenerAdapter {
 			this.bot.guild.getTextChannelById(event.getChannelIdLong()).upsertPermissionOverride(user).setDenied(Permission.MESSAGE_SEND,Permission.MESSAGE_HISTORY,Permission.VIEW_CHANNEL).queue();
 			switch (event.getName()) {
 				case "verify": 
-					this.bot.guild.addRoleToMember(user, this.bot.verifyRole).queue();
+					this.bot.guild.addRoleToMember(user, this.bot.memberRole).queue();
 					event.reply("User verified! \r\n-# Channel deleting in 5 minutes.").queue();
 					break;
 				case "deny": 
