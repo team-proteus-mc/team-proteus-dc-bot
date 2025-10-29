@@ -84,9 +84,8 @@ public class TeamProteusBot {
 			GUILD_MESSAGE_REACTIONS,
 			MESSAGE_CONTENT
 		)
-		.setActivity(Activity.customStatus("sigma very sigma"))
+		.setActivity(Activity.customStatus("Running Team Proteus Server"))
 		.build();
-	
 
 		CommandListUpdateAction commands = discord.updateCommands();
 		
@@ -128,7 +127,7 @@ public class TeamProteusBot {
 		this.adminRole = this.discord.getRoleById(this.config.getConfig("admin-role-id").getLong());
 		this.ownerRole = this.discord.getRoleById(this.config.getConfig("owner-role-id").getLong());
 		if (this.rulesChannel.getLatestMessageIdLong() == this.config.getConfig("rules-message-id").getLong()) {
-		// IFMESSAGEID0 -> if latest message id is equal to messa
+		// IFMESSAGEID0 -> if latest message id is equal to message id
 			this.reactMessageId = this.config.getConfig("rules-message-id").getLong();
 			this.rulesChannel.retrieveMessageById(reactMessageId).queue( 
 				// RETRIEVEM0 -> get message from id in config
@@ -220,24 +219,24 @@ public class TeamProteusBot {
 					channel.upsertPermissionOverride(user).setAllowed(Permission.MESSAGE_SEND,Permission.MESSAGE_HISTORY,Permission.VIEW_CHANNEL).queue(
 						(a) -> {
 							MessageEmbed embed = new EmbedBuilder()
-									.setColor(java.awt.Color.BLUE)
-									.setTitle("Verification Ticket for "+user.getEffectiveName())
-									.setDescription(
-											"This is a ticket created for verifying that you are a good fit for our community before granting access. Staff "
-											+ "may ask a few things about yourself, like interests and about how you discovered our server."
-											+ "\r\n\r\n"
-											+ "You will NOT be asked for any personally identifiable information. If staff ask you for such information, "
-											+ "either in DMs or in this channel, DO NOT provide such information, and please ping or DM the Server Owner "
-											+ "about this immediately. "
-											+ "\r\n\r\n"
-											+ "Plaintext-only records of this channel will be kept for moderation purposes only. For your privacy, it will "
-											+ "never be shared with anyone beyond the staff of this server."
-											+ "\r\n\r\n"
-											+ "Please give staff time to respond, as we are a small team and we may be busy."
-											+ "\r\n\r\n")
-									.setFooter("Thank you for joining Team Proteus")
-									.setThumbnail(user.getAvatarUrl())
-									.build();
+								.setColor(java.awt.Color.BLUE)
+								.setTitle("Verification Ticket for "+user.getEffectiveName())
+								.setDescription(
+									"This is a ticket created for verifying that you are a good fit for our community before granting access. Staff "
+									+ "may ask a few things about yourself, like interests and about how you discovered our server."
+									+ "\r\n\r\n"
+									+ "You will NOT be asked for any personally identifiable information. If staff ask you for such information, "
+									+ "either in DMs or in this channel, DO NOT provide such information, and please ping or DM the Server Owner "
+									+ "about this immediately. "
+									+ "\r\n\r\n"
+									+ "Plaintext-only records of this channel will be kept for moderation purposes only. For your privacy, it will "
+									+ "never be shared with anyone beyond the staff of this server."
+									+ "\r\n\r\n"
+									+ "Please give staff time to respond, as we are a small team and we may be busy."
+									+ "\r\n\r\n")
+								.setFooter("Thank you for joining Team Proteus")
+								.setThumbnail(user.getAvatarUrl())
+								.build();
 							channel.sendMessageEmbeds(embed).queue();
 							channel.sendMessage(this.ownerRole.getAsMention()+" "+this.adminRole.getAsMention()+" "+this.modRole.getAsMention()+" "+user.getAsMention()).queue();
 						}
