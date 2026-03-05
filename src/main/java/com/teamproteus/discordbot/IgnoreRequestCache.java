@@ -1,4 +1,4 @@
-package com.github.severinghams;
+package com.teamproteus.discordbot;
 
 import java.util.HashSet;
 

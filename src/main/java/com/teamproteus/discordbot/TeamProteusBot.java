@@ -1,4 +1,4 @@
-package com.github.severinghams;
+package com.teamproteus.discordbot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;

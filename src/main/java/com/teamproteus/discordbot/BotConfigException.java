@@ -1,4 +1,4 @@
-package com.github.severinghams;
+package com.teamproteus.discordbot;
 
 public class BotConfigException extends Exception {
 
