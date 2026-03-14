@@ -39,7 +39,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.github.severinghams.TeamProteusBot'
+    mainClass = 'com.teamproteus.discordbot.TeamProteusBot'
 }
 
 tasks.named('test') {

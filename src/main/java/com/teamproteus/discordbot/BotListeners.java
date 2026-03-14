@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -70,7 +69,7 @@ public class BotListeners extends ListenerAdapter {
 			long chanid = this.bot.usermap.getChannelFromUser(userid);
 			MessageHistory mh = MessageHistory.getHistoryFromBeginning(this.bot.guild.getTextChannelById(chanid)).complete();
 			List<Message> lm = mh.getRetrievedHistory();
-			this.bot.archiver.archiveChannel(lm, this.bot.discord.getUserById(userid).getName());
+			this.bot.archiver.archiveChannel(lm, event.getUser().getName());
 			this.bot.ignoreReqCache.unIgnoreUser(userid);
 			this.bot.guild.getTextChannelById(chanid).sendMessage("User has left the server! \r\n-# Channel deleting in 5 minutes.").queue();
 			this.bot.guild.getTextChannelById(chanid).delete().queueAfter(5, TimeUnit.MINUTES);
